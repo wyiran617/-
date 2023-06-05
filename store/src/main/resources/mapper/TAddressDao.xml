@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bs.store.dao.TAddressDao">
+
+    <resultMap type="com.bs.store.entity.TAddress" id="TAddressMap">
+        <result property="aid" column="aid" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="provinceName" column="province_name" jdbcType="VARCHAR"/>
+        <result property="provinceCode" column="province_code" jdbcType="VARCHAR"/>
+        <result property="cityName" column="city_name" jdbcType="VARCHAR"/>
+        <result property="cityCode" column="city_code" jdbcType="VARCHAR"/>
+        <result property="areaName" column="area_name" jdbcType="VARCHAR"/>
+        <result property="areaCode" column="area_code" jdbcType="VARCHAR"/>
+        <result property="zip" column="zip" jdbcType="VARCHAR"/>
+        <result property="address" column="address" jdbcType="VARCHAR"/>
+        <result property="phone" column="phone" jdbcType="VARCHAR"/>
+        <result property="tel" column="tel" jdbcType="VARCHAR"/>
+        <result property="tag" column="tag" jdbcType="VARCHAR"/>
+        <result property="isDefault" column="is_default" jdbcType="INTEGER"/>
+        <result property="createdUser" column="created_user" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="modifiedUser" column="modified_user" jdbcType="VARCHAR"/>
+        <result property="modifiedTime" column="modified_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TAddressMap">
+        select
+          aid, uid, name, province_name, province_code, city_name, city_code, area_name, area_code, zip, address, phone, tel, tag, is_default, created_user, created_time, modified_user, modified_time
+        from t_address
+        where aid = #{aid}
+    </select>
+
+    <!--查询all-->
+    <select id="queryAll" resultMap="TAddressMap">
+        select * from t_address
+    </select>
+
+    <!--根据uid查询all-->
+    <select id="queryAllByUid" resultMap="TAddressMap">
+        select * from t_address
+        where uid = #{uid}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="TAddressMap">
+        select * from t_address order by aid desc limit #{pageNum}, #{pageSize}
+    </select>
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(*)   from t_address
+    </select>
+
+    <!--模糊分页查询用户购物车信息-->
+    <select id="searchByKey" resultMap="TAddressMap">
+        select *  from t_address
+         where created_user like CONCAT('%',#{searchKey},'%') order by aid desc  limit #{pageNum}, #{pageSize}
+    </select>
+    <!--统计模糊查询结果总行数-->
+    <select id="searchCount" resultType="java.lang.Long">
+        select count(*)
+        from t_address where  created_user like CONCAT('%',#{searchKey},'%')
+    </select>
+
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="aid" useGeneratedKeys="true">
+        insert into t_address(uid, name, province_name, province_code, city_name, city_code, area_name, area_code, zip, address, phone, tel, tag, is_default, created_user, created_time, modified_user, modified_time)
+        values (#{uid}, #{name}, #{provinceName}, #{provinceCode}, #{cityName}, #{cityCode}, #{areaName}, #{areaCode}, #{zip}, #{address}, #{phone}, #{tel}, #{tag}, #{isDefault}, #{createdUser}, #{createdTime}, #{modifiedUser}, #{modifiedTime})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="aid" useGeneratedKeys="true">
+        insert into t_address(uid, name, province_name, province_code, city_name, city_code, area_name, area_code, zip,
+        address, phone, tel, tag, is_default, created_user, created_time, modified_user, modified_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.uid}, #{entity.name}, #{entity.provinceName}, #{entity.provinceCode}, #{entity.cityName},
+            #{entity.cityCode}, #{entity.areaName}, #{entity.areaCode}, #{entity.zip}, #{entity.address},
+            #{entity.phone}, #{entity.tel}, #{entity.tag}, #{entity.isDefault}, #{entity.createdUser},
+            #{entity.createdTime}, #{entity.modifiedUser}, #{entity.modifiedTime})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="aid" useGeneratedKeys="true">
+        insert into t_address(uid, name, province_name, province_code, city_name, city_code, area_name, area_code, zip,
+        address, phone, tel, tag, is_default, created_user, created_time, modified_user, modified_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.uid}, #{entity.name}, #{entity.provinceName}, #{entity.provinceCode}, #{entity.cityName},
+            #{entity.cityCode}, #{entity.areaName}, #{entity.areaCode}, #{entity.zip}, #{entity.address},
+            #{entity.phone}, #{entity.tel}, #{entity.tag}, #{entity.isDefault}, #{entity.createdUser},
+            #{entity.createdTime}, #{entity.modifiedUser}, #{entity.modifiedTime})
+        </foreach>
+        on duplicate key update
+        uid = values(uid),
+        name = values(name),
+        province_name = values(province_name),
+        province_code = values(province_code),
+        city_name = values(city_name),
+        city_code = values(city_code),
+        area_name = values(area_name),
+        area_code = values(area_code),
+        zip = values(zip),
+        address = values(address),
+        phone = values(phone),
+        tel = values(tel),
+        tag = values(tag),
+        is_default = values(is_default),
+        created_user = values(created_user),
+        created_time = values(created_time),
+        modified_user = values(modified_user),
+        modified_time = values(modified_time)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update t_address
+        <set>
+            <if test="uid != null">
+                uid = #{uid},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="provinceName != null and provinceName != ''">
+                province_name = #{provinceName},
+            </if>
+            <if test="provinceCode != null and provinceCode != ''">
+                province_code = #{provinceCode},
+            </if>
+            <if test="cityName != null and cityName != ''">
+                city_name = #{cityName},
+            </if>
+            <if test="cityCode != null and cityCode != ''">
+                city_code = #{cityCode},
+            </if>
+            <if test="areaName != null and areaName != ''">
+                area_name = #{areaName},
+            </if>
+            <if test="areaCode != null and areaCode != ''">
+                area_code = #{areaCode},
+            </if>
+            <if test="zip != null and zip != ''">
+                zip = #{zip},
+            </if>
+            <if test="address != null and address != ''">
+                address = #{address},
+            </if>
+            <if test="phone != null and phone != ''">
+                phone = #{phone},
+            </if>
+            <if test="tel != null and tel != ''">
+                tel = #{tel},
+            </if>
+            <if test="tag != null and tag != ''">
+                tag = #{tag},
+            </if>
+            <if test="isDefault != null">
+                is_default = #{isDefault},
+            </if>
+            <if test="createdUser != null and createdUser != ''">
+                created_user = #{createdUser},
+            </if>
+            <if test="createdTime != null">
+                created_time = #{createdTime},
+            </if>
+            <if test="modifiedUser != null and modifiedUser != ''">
+                modified_user = #{modifiedUser},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = #{modifiedTime},
+            </if>
+        </set>
+        where aid = #{aid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from t_address where aid = #{aid}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bs.store.dao.TOrderItemDao">
+
+    <resultMap type="com.bs.store.entity.TOrderItem" id="TOrderItemMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="oid" column="oid" jdbcType="VARCHAR"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="pid" column="pid" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="image" column="image" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="num" column="num" jdbcType="INTEGER"/>
+        <result property="createdUser" column="created_user" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="modifiedUser" column="modified_user" jdbcType="VARCHAR"/>
+        <result property="modifiedTime" column="modified_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--无条件查询所有-->
+    <select id="queryAll" resultMap="TOrderItemMap">
+        select
+          id, oid, uid, pid, title, image, price, num, created_user, created_time, modified_user, modified_time
+        from t_order_item order by id desc
+    </select>
+
+    <!--根据oid查询订单生成时间-->
+    <select id="queryCreatedTimeByOid" resultMap="TOrderItemMap">
+        select
+         created_time
+        from t_order_item
+        where oid = #{oid}
+    </select>
+
+    <!--根据oid查询所有-->
+    <select id="queryAllByOid" resultMap="TOrderItemMap">
+        select
+          id, oid, uid, pid, title, image, price, num, created_user, created_time, modified_user, modified_time
+        from t_order_item
+        where oid = #{oid} order by id desc
+    </select>
+
+    <!--根据uid查询该用户所有订单-->
+    <select id="queryAllByUid" resultMap="TOrderItemMap">
+        select
+          id, oid, uid, pid, title, image, price, num, created_user, created_time, modified_user, modified_time
+        from t_order_item
+        where uid = #{uid} order by id desc
+    </select>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TOrderItemMap">
+        select
+          id, oid, uid, pid, title, image, price, num, created_user, created_time, modified_user, modified_time
+        from t_order_item
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="TOrderItemMap">
+        select * from t_order_item order by id desc limit #{pageNum}, #{pageSize}
+    </select>
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(*) from t_order_item
+    </select>
+
+
+    <!--模糊分页查询用户购物车信息-->
+    <select id="searchByKey" resultMap="TOrderItemMap">
+        select *  from t_order_item
+         where created_user like CONCAT('%',#{searchKey},'%') order by id desc  limit #{pageNum}, #{pageSize}
+    </select>
+    <!--统计模糊查询结果总行数-->
+    <select id="searchCount" resultType="java.lang.Long">
+        select count(*)
+        from t_order_item where  created_user like CONCAT('%',#{searchKey},'%')
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into t_order_item(oid, uid, pid, title, image, price, num, created_user, created_time, modified_user, modified_time)
+        values (#{oid}, #{uid}, #{pid}, #{title}, #{image}, #{price}, #{num}, #{createdUser}, #{createdTime}, #{modifiedUser}, #{modifiedTime})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into t_order_item(oid, uid, pid, title, image, price, num, created_user, created_time, modified_user, modified_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.oid}, #{entity.uid}, #{entity.pid}, #{entity.title}, #{entity.image}, #{entity.price}, #{entity.num}, #{entity.createdUser}, #{entity.createdTime}, #{entity.modifiedUser}, #{entity.modifiedTime})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into t_order_item(oid, uid, pid, title, image, price, num, created_user, created_time, modified_user, modified_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.oid}, #{entity.uid}, #{entity.pid}, #{entity.title}, #{entity.image}, #{entity.price}, #{entity.num}, #{entity.createdUser}, #{entity.createdTime}, #{entity.modifiedUser}, #{entity.modifiedTime})
+        </foreach>
+        on duplicate key update
+        oid = values(oid),
+        uid = values(uid),
+        pid = values(pid),
+        title = values(title),
+        image = values(image),
+        price = values(price),
+        num = values(num),
+        created_user = values(created_user),
+        created_time = values(created_time),
+        modified_user = values(modified_user),
+        modified_time = values(modified_time)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update t_order_item
+        <set>
+            <if test="oid != null and oid != ''">
+                oid = #{oid},
+            </if>
+            <if test="uid != null">
+                uid = #{uid},
+            </if>
+            <if test="pid != null">
+                pid = #{pid},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="image != null and image != ''">
+                image = #{image},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="num != null">
+                num = #{num},
+            </if>
+            <if test="createdUser != null and createdUser != ''">
+                created_user = #{createdUser},
+            </if>
+            <if test="createdTime != null">
+                created_time = #{createdTime},
+            </if>
+            <if test="modifiedUser != null and modifiedUser != ''">
+                modified_user = #{modifiedUser},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = #{modifiedTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from t_order_item where id = #{id}
+    </delete>
+
+</mapper>
+

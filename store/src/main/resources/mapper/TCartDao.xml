@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bs.store.dao.TCartDao">
+
+    <resultMap type="com.bs.store.entity.TCart" id="TCartMap">
+        <result property="cid" column="cid" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="pid" column="pid" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="image" column="image" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="num" column="num" jdbcType="INTEGER"/>
+        <result property="maxNum" column="maxNum" jdbcType="INTEGER"/>
+        <result property="isCheck" column="isCheck" jdbcType="TINYINT"/>
+        <result property="createdUser" column="created_user" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="modifiedUser" column="modified_user" jdbcType="VARCHAR"/>
+        <result property="modifiedTime" column="modified_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TCartMap">
+        select
+          cid, uid, pid, title, image, price, num, maxNum, isCheck, created_user, created_time, modified_user, modified_time
+        from t_cart
+        where cid = #{cid}
+    </select>
+
+    <!--查询指定用户的购物车数据-->
+    <select id="queryByUid" resultMap="TCartMap">
+        select
+          cid, uid, pid, title, image,  price, num, maxNum, isCheck, created_user, created_time, modified_user, modified_time
+        from t_cart
+        where uid = #{uid}
+    </select>
+
+    <!--查询指定商品是否已加入购物车-->
+    <select id="queryByGid" resultMap="TCartMap">
+        select
+          cid, uid, pid, title, image,  price, num, maxNum, isCheck, created_user, created_time, modified_user, modified_time
+        from t_cart
+        where pid = #{pid}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="TCartMap">
+        select * from t_cart order by cid desc  limit #{pageNum}, #{pageSize}
+    </select>
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(*) from t_cart
+    </select>
+
+    <!--模糊分页查询用户购物车信息-->
+    <select id="searchByKey" resultMap="TCartMap">
+        select *  from t_cart
+         where created_user like CONCAT('%',#{searchKey},'%') order by cid desc  limit #{pageNum}, #{pageSize}
+    </select>
+    <!--统计模糊查询结果总行数-->
+    <select id="searchCount" resultType="java.lang.Long">
+        select count(*)
+        from t_goods_category where  created_user like CONCAT('%',#{searchKey},'%')
+    </select>
+
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="cid" useGeneratedKeys="true">
+        insert into t_cart(uid, pid,  title, image, price, num, maxNum, isCheck, created_user, created_time, modified_user, modified_time)
+        values (#{uid}, #{pid}, #{title}, #{image}, #{price}, #{num}, #{maxNum}, #{isCheck}, #{createdUser}, #{createdTime}, #{modifiedUser}, #{modifiedTime})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="cid" useGeneratedKeys="true">
+        insert into t_cart(uid, pid,  title, image, price, num, maxNum, isCheck, created_user, created_time, modified_user, modified_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.uid}, #{entity.pid}, #{entity.title}, #{entity.image}, #{entity.price}, #{entity.num},  #{entity.maxNum}, #{entity.isCheck}, #{entity.createdUser}, #{entity.createdTime},
+            #{entity.modifiedUser}, #{entity.modifiedTime})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="cid" useGeneratedKeys="true">
+        insert into t_cart(uid, pid,  title, image, price, num, maxNum, isCheck, created_user, created_time, modified_user, modified_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.uid}, #{entity.pid}, #{entity.title}, #{entity.image}, #{entity.price}, #{entity.num}, #{entity.maxNum},  #{entity.isCheck},#{entity.createdUser}, #{entity.createdTime},
+            #{entity.modifiedUser}, #{entity.modifiedTime})
+        </foreach>
+        on duplicate key update
+        uid = values(uid),
+        pid = values(pid),
+        price = values(title),
+        price = values(image),
+        price = values(price),
+        num = values(num),
+        maxNum = values(maxNum),
+        isCheck = values(isCheck),
+        created_user = values(created_user),
+        created_time = values(created_time),
+        modified_user = values(modified_user),
+        modified_time = values(modified_time)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="updateByPidAndUid">
+        update t_cart
+        <set>
+            <if test="uid != null">
+                uid = #{uid},
+            </if>
+            <if test="pid != null">
+                pid = #{pid},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="image != null">
+                image = #{image},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="num != null">
+                num = #{num},
+            </if>
+            <if test="maxNum != null">
+                maxNum = #{maxNum},
+            </if>
+            <if test="isCheck != null">
+                isCheck = #{isCheck},
+            </if>
+            <if test="createdUser != null and createdUser != ''">
+                created_user = #{createdUser},
+            </if>
+            <if test="createdTime != null">
+                created_time = #{createdTime},
+            </if>
+            <if test="modifiedUser != null and modifiedUser != ''">
+                modified_user = #{modifiedUser},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = #{modifiedTime},
+            </if>
+        </set>
+        where uid = #{uid} and pid = #{pid}
+    </update>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update t_cart
+        <set>
+            <if test="uid != null">
+                uid = #{uid},
+            </if>
+            <if test="pid != null">
+                pid = #{pid},
+            </if>
+            <if test="title != null">
+                title = #{title},
+            </if>
+            <if test="image != null">
+                image = #{image},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="num != null">
+                num = #{num},
+            </if>
+            <if test="maxNum != null">
+                maxNum = #{maxNum},
+            </if>
+            <if test="isCheck != null">
+                isCheck = #{isCheck},
+            </if>
+            <if test="createdUser != null and createdUser != ''">
+                created_user = #{createdUser},
+            </if>
+            <if test="createdTime != null">
+                created_time = #{createdTime},
+            </if>
+            <if test="modifiedUser != null and modifiedUser != ''">
+                modified_user = #{modifiedUser},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = #{modifiedTime},
+            </if>
+        </set>
+        where cid = #{cid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from t_cart where cid = #{cid}
+    </delete>
+
+</mapper>
+

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bs.store.dao.TCollectDao">
+
+    <resultMap type="com.bs.store.entity.TCollect" id="TCollectMap">
+        <result property="cid" column="cid" jdbcType="INTEGER"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="sellPoint" column="sell_point" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="VARCHAR"/>
+        <result property="image" column="image" jdbcType="VARCHAR"/>
+        <result property="createdUser" column="created_user" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+        <result property="modifiedUser" column="modified_user" jdbcType="VARCHAR"/>
+        <result property="modifiedTime" column="modified_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="TCollectMap">
+        select
+          cid, uid, id, title, sell_point, price, image, created_user, created_time, modified_user, modified_time
+        from t_collect
+        where cid = #{cid}
+    </select>
+
+    <!--根据uid查询-->
+    <select id="queryByUid" resultMap="TCollectMap">
+        select
+          cid, uid, id, title, sell_point, price, image, created_user, created_time, modified_user, modified_time
+        from t_collect
+        where uid = #{uid}
+    </select>
+
+    <!--根据gid查询-->
+    <select id="queryByGid" resultMap="TCollectMap">
+        select
+          cid, uid, id, title, sell_point, price, image, created_user, created_time, modified_user, modified_time
+        from t_collect
+        where id = #{id}
+    </select>
+
+    <!--模糊查询-->
+    <select id="searchByKey" resultMap="TCollectMap">
+        select * from t_goods
+        where title like CONCAT('%',#{searchKey},'%') limit #{pageNum}, #{pageSize}
+    </select>
+
+    <!--统计查询结果总行数-->
+    <select id="searchCount" resultType="java.lang.Long">
+        select count(*)
+        from t_collect where  title like CONCAT('%',#{searchKey},'%')
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="TCollectMap">
+        select * from t_collect order by cid desc  limit #{pageNum}, #{pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(*) from t_collect
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="cid" useGeneratedKeys="true">
+        insert into t_collect(uid, id, title, sell_point, price, image, created_user, created_time, modified_user, modified_time)
+        values (#{uid}, #{id}, #{title}, #{sellPoint}, #{price}, #{image}, #{createdUser}, #{createdTime}, #{modifiedUser}, #{modifiedTime})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="cid" useGeneratedKeys="true">
+        insert into t_collect(uid, id, title, sell_point, price, image, created_user, created_time, modified_user, modified_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.uid}, #{entity.id}, #{entity.title}, #{entity.sellPoint}, #{entity.price}, #{entity.image}, #{entity.createdUser}, #{entity.createdTime}, #{entity.modifiedUser}, #{entity.modifiedTime})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="cid" useGeneratedKeys="true">
+        insert into t_collect(uid, id, title, sell_point, price, image, created_user, created_time, modified_user, modified_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.uid}, #{entity.id}, #{entity.title}, #{entity.sellPoint}, #{entity.price}, #{entity.image}, #{entity.createdUser}, #{entity.createdTime}, #{entity.modifiedUser}, #{entity.modifiedTime})
+        </foreach>
+        on duplicate key update
+        uid = values(uid),
+        id = values(id),
+        title = values(title),
+        sell_point = values(sell_point),
+        price = values(price),
+        image = values(image),
+        created_user = values(created_user),
+        created_time = values(created_time),
+        modified_user = values(modified_user),
+        modified_time = values(modified_time)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update t_collect
+        <set>
+            <if test="uid != null">
+                uid = #{uid},
+            </if>
+            <if test="gid != null">
+                id = #{id},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="sellPoint != null and sellPoint != ''">
+                sell_point = #{sellPoint},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="image != null and image != ''">
+                image = #{image},
+            </if>
+            <if test="createdUser != null and createdUser != ''">
+                created_user = #{createdUser},
+            </if>
+            <if test="createdTime != null">
+                created_time = #{createdTime},
+            </if>
+            <if test="modifiedUser != null and modifiedUser != ''">
+                modified_user = #{modifiedUser},
+            </if>
+            <if test="modifiedTime != null">
+                modified_time = #{modifiedTime},
+            </if>
+        </set>
+        where cid = #{cid}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from t_collect where cid = #{cid}
+    </delete>
+
+</mapper>
+
